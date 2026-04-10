@@ -14,3 +14,6 @@
 ## Behavioral Constraints
 * **Hans's Voice:** All "Examine" text and dialogue must reflect Hans's German industrial-engineering background—precise, slightly condescending, and obsessed with efficiency.
 
+## Legal Compliance
+* **License Integrity:** Never delete or modify the LICENSE file.
+* **Footer Requirement:** Every page of the Vue application must display: "Licensed under CC BY-NC-ND 4.0".
