@@ -7,7 +7,7 @@
 * **Gesture Handling:** Use the @vueuse/core library, specifically the onLongPress directive, to handle the "Examine" logic for mobile users.
 
 ## Agile Documentation Rules
-* **Sprint Reviews:** Every loop must end with a file named `sprint_x_review.md` (where x is the current sprint number).
+* **Sprint Reviews:** Every loop must end with a file named `sprint_x.y_review.md` (where x is the plannin interval number, and y is the current sprint number).
 * **Persistence Policy:** **DO NOT** delete or overwrite the following files: `goal.md`, `skills.md`, `story.md`, `theme.md`, or any existing `sprint_x_review.md`.
 * **Cleanup:** You are permitted to delete temporary `.tmp` or `.log` files created during a specific sprint once verification is complete.
 
