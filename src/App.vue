@@ -20,9 +20,13 @@
       </div>
     </Transition>
 
-    <!-- Examine hint (mobile) -->
-    <div v-if="!dialogue && currentScene !== 'title'" class="fixed top-2 right-2 z-30 pointer-events-none">
-      <span class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1">Long press = Examine</span>
+    <!-- Sound toggle + Examine hint -->
+    <div v-if="currentScene !== 'title'" class="fixed top-2 right-2 z-30 flex items-center gap-2">
+      <button class="tap-target text-lg bg-stone-900/70 rounded-full w-8 h-8 flex items-center justify-center"
+              @click="toggleSfx">
+        {{ soundOn ? '🔊' : '🔇' }}
+      </button>
+      <span v-if="!dialogue" class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1 pointer-events-none">Long press = Examine</span>
     </div>
 
     <InventoryBar :items="inventory" />
@@ -42,6 +46,7 @@ import BBQStallScene from './scenes/BBQStallScene.vue'
 import VictoryScene from './scenes/VictoryScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
+import { sfx, isSoundEnabled, toggleSound } from './audio.js'
 
 const SCENES = { title: TitleScene, hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene, victory: VictoryScene }
 
@@ -50,19 +55,22 @@ const inventory = reactive(JSON.parse(localStorage.getItem('mooyang_inventory') 
 const flags = reactive(JSON.parse(localStorage.getItem('mooyang_flags') || '{}'))
 const dialogue = ref(null)
 const toast = ref(null)
+const soundOn = ref(isSoundEnabled())
 let toastTimer = null
 
 const currentSceneComponent = computed(() => SCENES[currentScene.value])
 
 function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
+  sfx.transition()
   Object.assign(flags, newFlags)
   if (clearInventory) inventory.length = 0
   currentScene.value = scene
   saveGame()
 }
 
-function showDialogue(d) { dialogue.value = d }
+function showDialogue(d) { sfx.dialogue(); dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
+function toggleSfx() { soundOn.value = toggleSound(); sfx.tap() }
 function pickupItem(item) {
   // Support both string and object format
   const itemObj = typeof item === 'string'
@@ -70,6 +78,7 @@ function pickupItem(item) {
     : item
   if (!inventory.some(i => i.id === itemObj.id)) {
     inventory.push(itemObj)
+    sfx.pickup()
     toast.value = { icon: itemObj.icon, text: 'Got: ' + itemObj.label }
     clearTimeout(toastTimer)
     toastTimer = setTimeout(() => { toast.value = null }, 2200)

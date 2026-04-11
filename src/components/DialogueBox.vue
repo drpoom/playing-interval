@@ -17,6 +17,7 @@
 
 <script setup>
 import { ref, watch, computed, onUnmounted } from 'vue'
+import { sfx } from '../audio.js'
 
 const props = defineProps({ dialogue: Object })
 const emit = defineEmits(['dismiss'])
@@ -66,6 +67,7 @@ function handleClick() {
     displayedText.value = props.dialogue?.text || ''
     isTyping.value = false
   } else {
+    sfx.tap()
     emit('dismiss')
   }
 }

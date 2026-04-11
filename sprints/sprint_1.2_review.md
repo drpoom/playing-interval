@@ -1,0 +1,3 @@
+- **Save/load bug fixed** — "Continue" now restores the actual saved scene instead of always defaulting to hotel.
+- **Tuktuk skip added** — Players can skip the tuktuk ride animation with a "⏩ Skip ride" button.
+- **Dialogue speaker icons** — Dialogue box now shows emoji portraits (🧔 Hans, 👨‍🍳 Somchai, ⚙️ System) next to speaker names for classic adventure game feel.
