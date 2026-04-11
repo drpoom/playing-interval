@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, watch } from 'vue'
 import TitleScene from './scenes/TitleScene.vue'
 import HotelScene from './scenes/HotelScene.vue'
 import TuktukScene from './scenes/TuktukScene.vue'
@@ -45,9 +45,9 @@ import InventoryBar from './components/InventoryBar.vue'
 
 const SCENES = { title: TitleScene, hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene, victory: VictoryScene }
 
-const currentScene = ref('title')
-const inventory = reactive([])
-const flags = reactive({})
+const currentScene = ref(localStorage.getItem('mooyang_scene') || 'title')
+const inventory = reactive(JSON.parse(localStorage.getItem('mooyang_inventory') || '[]'))
+const flags = reactive(JSON.parse(localStorage.getItem('mooyang_flags') || '{}'))
 const dialogue = ref(null)
 const toast = ref(null)
 let toastTimer = null
@@ -58,6 +58,7 @@ function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
   Object.assign(flags, newFlags)
   if (clearInventory) inventory.length = 0
   currentScene.value = scene
+  saveGame()
 }
 
 function showDialogue(d) { dialogue.value = d }
@@ -70,6 +71,16 @@ function pickupItem(item) {
     toast.value = { icon, text: 'Got: ' + item.replace(icon, '').trim() }
     clearTimeout(toastTimer)
     toastTimer = setTimeout(() => { toast.value = null }, 2200)
+    saveGame()
   }
 }
+
+function saveGame() {
+  localStorage.setItem('mooyang_scene', currentScene.value)
+  localStorage.setItem('mooyang_inventory', JSON.stringify([...inventory]))
+  localStorage.setItem('mooyang_flags', JSON.stringify({ ...flags }))
+}
+
+// Auto-save on changes
+watch(currentScene, saveGame)
 </script>

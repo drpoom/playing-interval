@@ -24,7 +24,12 @@
       <div class="flex flex-col gap-3 w-full max-w-xs">
         <button class="tap-target bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg transition-all"
                 @click="startGame">
-          🎮 Begin Adventure
+          🎮 New Game
+        </button>
+
+        <button v-if="hasSave" class="tap-target bg-stone-600 hover:bg-stone-500 active:bg-stone-700 text-white font-bold py-3 px-8 rounded-xl text-base transition-all"
+                @click="continueGame">
+          ▶️ Continue
         </button>
 
         <button class="tap-target bg-stone-700 hover:bg-stone-600 active:bg-stone-800 text-stone-300 font-bold py-3 px-8 rounded-xl text-sm transition-all"
@@ -44,14 +49,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const emit = defineEmits(['transition'])
 
 const showingAbout = ref(false)
+const hasSave = computed(() => !!localStorage.getItem('mooyang_scene') && localStorage.getItem('mooyang_scene') !== 'title')
 const particles = ['🔥', '⛏️', '🐖', '🍖', '💾', '🌶️', '📡', '🛺', '🏨', '📜', '💸', '🐄']
 
 function startGame() {
+  localStorage.removeItem('mooyang_scene')
+  localStorage.removeItem('mooyang_inventory')
+  localStorage.removeItem('mooyang_flags')
+  emit('transition', { scene: 'hotel' })
+}
+
+function continueGame() {
   emit('transition', { scene: 'hotel' })
 }
 
