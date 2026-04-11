@@ -72,3 +72,22 @@ Build succeeds. Now commit, push, and deploy:
 
 Hard refresh (`Ctrl+Shift+R`) to see the latest!
 
+
+========================================
+STEP: REPAIR | 04:11:58
+OUT: Build passes. The `vite: not found` error happens when `node_modules` is missing (e.g. after `git clean -fdx` on deployment). The fix: ensure `npm install` runs before `npm run build`. Let me update `package.json` to make the build script resilient:
+The `package.json` is fine — `vite` is a devDependency and will be in `node_modules` after `npm install`. The real issue is that the `driver.py` deployment flow does `git clean -fdx` which wipes `node_modules`, then tries to build without reinstalling.
+
+Let me also check if the `driver.py` needs fixing:
+The driver's `verify_and_deploy` runs `npm run build` but doesn't run `npm install` first. That's the root cause. Let me add that:
+Now deploy the build:
+**Fixed and deployed!** ✅
+
+**Root cause:** The `driver.py` `verify_and_deploy()` function runs `npm run build` but never runs `npm install` first. After `git clean -fdx` wipes `node_modules`, the `vite` binary is gone → `sh: 1: vite: not found`.
+
+**Fix:** Added `npm install` before the build step in `driver.py`.
+
+**Also:** Added `.driver.py.swp` to `.gitignore` and removed the tracked swap file.
+
+**Deployed to:** `https://www.drpoom.com/playing-interval/`
+
