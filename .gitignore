@@ -1,8 +1,3 @@
-node_modules/
-dist/
-*.log
-.DS_Store
-dashboard.json
-STOP_AGENT.txt
-PI_PLANNING_TRIGGER.txt
-
+node_modules
+dist
+.vite
