@@ -23,11 +23,12 @@
 <script setup>
 import { reactive, computed, ref } from 'vue'
 import HotelScene from './scenes/HotelScene.vue'
+import TuktukScene from './scenes/TuktukScene.vue'
 import BBQStallScene from './scenes/BBQStallScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
 
-const SCENES = { hotel: HotelScene, bbqStall: BBQStallScene }
+const SCENES = { hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene }
 
 const currentScene = ref('hotel')
 const inventory = reactive([])

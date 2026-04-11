@@ -19,8 +19,7 @@
       <!-- Hans -->
       <div class="tap-target text-8xl transition-transform"
            @click="talkToHans" @contextmenu.prevent="examineHans"
-           v-longpress="examineHans">
-        🧔
+           v-longpress="examineHans">🧔
       </div>
       <p class="text-amber-200 text-sm italic text-center">{{ narration }}</p>
 
@@ -100,7 +99,7 @@ function lookWindow() {
 }
 
 function goOutside() {
-  emit('transition', { scene: 'bbqStall', newFlags: { leftHotel: true } })
+  emit('transition', { scene: 'tuktuk', newFlags: { leftHotel: true } })
 }
 </script>
 

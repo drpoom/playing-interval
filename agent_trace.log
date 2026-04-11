@@ -3,3 +3,38 @@
 STEP: DEV | 04:02:12
 OUT: The project structure has been set up by a previous sprint but is missing the Vue source files. The `vite.config.js` exists but there's no `src/`, `index.html`, or `package.json` with Vue deps. Let me build out the full game properly.
 
+
+========================================
+STEP: REPAIR | 04:05:21
+OUT: Missing BBQStallScene.vue. The HotelScene also has a `bgClass` binding but no class value. Let me create the BBQ scene and fix the hotel scene:
+Now fix the HotelScene — it references `bgClass` but doesn't bind it properly:
+Now build:
+Build succeeds. Now commit and deploy:
+Build ✅ | Main pushed ✅ | gh-pages deployed ✅
+
+**PI 1.1 Sprint Complete!** Here's what's live:
+
+🍖 **The Secret of Moo Yang — Prologue PoC**
+
+**Scene 1 (Hotel):**
+- Hans in his 5-star Pattaya hotel room
+- Interactive items: Minibar 🍺, Bed 🛏️, Window 🪟, Letter 📜
+- Talk to Hans / Examine Hans (long-press / right-click)
+- "Go Outside" transitions to BBQ Stall
+
+**Scene 2 (BBQ Stall):**
+- Uncle Somchai's "Crypto-Crackle" stall
+- Pick up the Greasy USB Stick 💾
+- Examine Grill 🔥, Sign 🪧, Miner ⛏️
+- **The Puzzle:** Insert the USB into the Miner → "MOO YANG PROTOCOL ACTIVATED!"
+
+**Deployed at:** `https://www.drpoom.com/playing-interval/`
+
+**Features:**
+- Tailwind CSS mobile-first responsive UI
+- Dialogue box system (tap to dismiss)
+- Inventory bar (tracks picked-up items)
+- Hans's German-engineer voice in all examine text
+- Scene transitions with fade animation
+- CC BY-NC-ND 4.0 footer
+
