@@ -1,5 +1,5 @@
 node_modules
 dist/
-sprints/
 agent_trace.log
 .vite.driver.py.swp
+
