@@ -1,0 +1,37 @@
+
+========================================
+STEP: DEV | 04:18:19
+OUT: [31m[agent][39m [36mauto-compaction succeeded for ollama/glm-5.1:cloud; retrying prompt[39m
+The game flow is complete (Title → Hotel → Tuktuk → BBQ → Victory), but I see two key improvements needed:
+
+1. **BBQStallScene has a bug**: `initializeMiner()` sets `minersOnline` flag via `emit('transition', ...)` immediately, but the dialogue to dismiss comes first. The transition happens after a timeout, but the `minersOnline` flag isn't set yet during the dialogue display — so the success banner won't show. Need to fix the sequencing.
+
+2. **Mobile UX needs "Examine" hint text** — the long-press directive exists but there's no visual affordance for mobile users. Adding subtle hint text and a pulsing examine indicator would help.
+
+Let me also add a **toast notification** for item pickups (currently just narration text that can be missed) and fix the miner initialization flow:
+Now add the toast transition CSS to the global styles:
+Now fix the BBQStallScene — the miner initialization should set the flag first, then show dialogue, then transition to victory after dismissal:
+Now I need a way for the player to proceed to the victory scene after the dialogue. The cleanest approach: add a "Continue →" button that appears once miners are online:
+Also add long-press support to BBQStallScene items for mobile examine:
+Now build and verify:
+Build succeeds. Now commit, push, and deploy:
+**PI 1.3 Sprint Complete!** 🎉
+
+**New features added:**
+
+1. **🎬 Title Screen** — Animated floating emoji particles, game title "The Secret of Moo Yang", Hans quote, "Begin Adventure" + "About" buttons with how-to-play instructions
+
+2. **🏆 Victory Screen** — Confetti animation, "MOO YANG PROTOCOL ACTIVATED!" celebration, Hans's final monologue, stats grid (3 scenes, 1 puzzle, 1 USB stick), "Play Again" button that resets the game
+
+3. **📦 Item Pickup Toast** — Golden toast notification slides in from top when you pick up the Greasy USB, auto-dismisses after 2.2s
+
+4. **💡 Examine Hint** — Subtle "Long press = Examine" hint in top-right corner on non-title scenes
+
+5. **🔧 BBQ Scene Flow Fix** — Miner initialization now sets the flag first (so the success banner + "Continue →" button appear), then player clicks to proceed to victory (no more timeout hack)
+
+6. **📱 Long-press on BBQ NPC** — `v-longpress` directive added to Somchai for mobile examine
+
+**Full game loop:** Title → Hotel → Tuktuk → BBQ (pick up USB, initialize miner) → Victory → Play Again → Title
+
+**Live at:** `https://www.drpoom.com/playing-interval/`
+
