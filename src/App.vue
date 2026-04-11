@@ -12,6 +12,19 @@
 
     <DialogueBox v-if="dialogue" :dialogue="dialogue" @dismiss="dismissDialogue" />
 
+    <!-- Toast for item pickups -->
+    <Transition name="toast">
+      <div v-if="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-amber-600/95 text-white font-bold px-5 py-3 rounded-xl shadow-2xl text-base flex items-center gap-2">
+        <span class="text-xl">{{ toast.icon }}</span>
+        <span>{{ toast.text }}</span>
+      </div>
+    </Transition>
+
+    <!-- Examine hint (mobile) -->
+    <div v-if="!dialogue && currentScene !== 'title'" class="fixed top-2 right-2 z-30 pointer-events-none">
+      <span class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1">Long press = Examine</span>
+    </div>
+
     <InventoryBar :items="inventory" />
 
     <footer class="footer-license fixed bottom-0 left-0 right-0 text-center p-1 pointer-events-none">
@@ -36,6 +49,8 @@ const currentScene = ref('title')
 const inventory = reactive([])
 const flags = reactive({})
 const dialogue = ref(null)
+const toast = ref(null)
+let toastTimer = null
 
 const currentSceneComponent = computed(() => SCENES[currentScene.value])
 
@@ -48,6 +63,13 @@ function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
 function showDialogue(d) { dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
 function pickupItem(item) {
-  if (!inventory.includes(item)) inventory.push(item)
+  if (!inventory.includes(item)) {
+    inventory.push(item)
+    // Show toast notification
+    const icon = item.match(/\p{Emoji_Presentation}/u)?.[0] || '📦'
+    toast.value = { icon, text: 'Got: ' + item.replace(icon, '').trim() }
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { toast.value = null }, 2200)
+  }
 }
 </script>

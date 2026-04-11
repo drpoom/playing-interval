@@ -19,7 +19,8 @@
 
       <!-- Stall Owner -->
       <div class="tap-target text-8xl transition-transform"
-           @click="talkToOwner" @contextmenu.prevent="examineOwner">
+           @click="talkToOwner" @contextmenu.prevent="examineOwner"
+           v-longpress="examineOwner">
         👨‍🍳
       </div>
 
@@ -58,6 +59,13 @@
            class="bg-green-800/80 border border-green-500 rounded-lg px-4 py-2 text-green-300 font-bold text-center">
         ✅ Miners Online! Moo Yang Protocol Activated! 🐄⛏️
       </div>
+
+      <!-- Proceed to victory after miners are online -->
+      <button v-if="minerInitialized"
+              class="tap-target bg-green-700 hover:bg-green-600 active:bg-green-800 text-white font-bold py-3 px-8 rounded-lg text-base shadow-lg animate-pulse"
+              @click="proceedToVictory">
+        🎉 Continue →
+      </button>
 
       <!-- Navigation -->
       <div class="flex gap-3 mt-2">
@@ -130,14 +138,16 @@ function examineMiner() {
 }
 
 function initializeMiner() {
+  // Set flag immediately so UI updates
+  emit('transition', { scene: 'bbqStall', newFlags: { minersOnline: true } })
   emit('dialogue', {
     speaker: 'System',
     text: '"The USB slides in with a satisfying SCHLUCK. The miner whirs to life! 🎉 MOO YANG PROTOCOL ACTIVATED! The miners are ONLINE! Moo Yang tokens are being mined at 400 TH/s!"'
   })
-  // Transition to victory scene after brief delay
-  setTimeout(() => {
-    emit('transition', { scene: 'victory', newFlags: { minersOnline: true } })
-  }, 1500)
+}
+
+function proceedToVictory() {
+  emit('transition', { scene: 'victory', newFlags: {} })
 }
 
 function goBack() {

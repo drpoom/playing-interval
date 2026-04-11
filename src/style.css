@@ -20,3 +20,9 @@ html, body, #app { width: 100%; height: 100dvh; overflow: hidden; touch-action: 
 /* Tap feedback */
 .tap-target { min-width: 48px; min-height: 48px; }
 .tap-target:active { transform: scale(0.94); transition: transform 0.1s; }
+
+/* Toast notification */
+.toast-enter-active { transition: all 0.3s ease-out; }
+.toast-leave-active { transition: all 0.4s ease-in; }
+.toast-enter-from { opacity: 0; transform: translate(-50%, -20px); }
+.toast-leave-to { opacity: 0; transform: translate(-50%, -10px); }
