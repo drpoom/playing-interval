@@ -22,18 +22,16 @@
       </div>
     </Transition>
 
-    <!-- Sound + Music toggles + Examine hint -->
-    <div v-if="currentScene !== 'title'" class="fixed top-2 right-2 z-30 flex items-center gap-1.5">
-      <button class="tap-target text-lg bg-stone-900/70 rounded-full w-8 h-8 flex items-center justify-center"
-              @click="toggleSfx">
-        {{ soundOn ? '🔊' : '🔇' }}
-      </button>
-      <button class="tap-target text-lg bg-stone-900/70 rounded-full w-8 h-8 flex items-center justify-center"
-              @click="toggleBgm">
-        {{ musicOn ? '🎵' : '🔕' }}
-      </button>
-      <span v-if="!dialogue" class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1 pointer-events-none">Long press = Examine</span>
-    </div>
+    <!-- Settings gear button -->
+    <button v-if="currentScene !== 'title'" class="fixed top-2 right-2 z-30 tap-target text-lg bg-stone-900/70 rounded-full w-9 h-9 flex items-center justify-center"
+            @click="showSettings = !showSettings">
+      ⚙️
+    </button>
+    <SettingsPanel :show="showSettings" :sfx-on="soundOn" :music-on="musicOn"
+      @close="showSettings = false"
+      @toggle-sfx="toggleSfx"
+      @toggle-music="toggleBgm"
+      @new-game="restartGame" />
 
     <InventoryBar :items="inventory" @examine="examineItem" />
 
@@ -53,6 +51,7 @@ import VictoryScene from './scenes/VictoryScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
 import SceneIntro from './components/SceneIntro.vue'
+import SettingsPanel from './components/SettingsPanel.vue'
 import { sfx, isSoundEnabled, toggleSound } from './audio.js'
 import { isMusicEnabled, toggleMusic, changeScene } from './music.js'
 
@@ -65,6 +64,7 @@ const dialogue = ref(null)
 const toast = ref(null)
 const soundOn = ref(isSoundEnabled())
 const musicOn = ref(isMusicEnabled())
+const showSettings = ref(false)
 let toastTimer = null
 
 const introShow = ref(false)
@@ -109,6 +109,10 @@ function showDialogue(d) { sfx.dialogue(); dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
 function toggleSfx() { soundOn.value = toggleSound(); sfx.tap() }
 function toggleBgm() { musicOn.value = toggleMusic() }
+function restartGame() {
+  showSettings.value = false
+  handleTransition({ scene: 'title', newFlags: { minersOnline: false }, clearInventory: true })
+}
 
 const ITEM_EXAMINES = {
   'greasy-usb': { speaker: 'Hans', text: '"A USB stick covered in pork fat. The label reads: MINER 3000 BOOT DISK. The grease-to-data ratio is... concerning."' },

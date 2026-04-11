@@ -1,0 +1,3 @@
+- **Miner boot terminal puzzle** — `MinerTerminal.vue` adds a retro green-on-black terminal overlay with animated 20-line boot sequence (USB mount, ASIC cores, Moo Yang Protocol v4.2, hash rate), progress bar, and success fanfare SFX when USB is inserted.
+- **Cinematic scene intros** — `SceneIntro.vue` displays full-screen title cards on scene transitions with per-scene gradient backgrounds, auto-dismissing after 2.2 seconds.
+- **Atmospheric CSS art** — All scenes now have layered decorations: Hotel gets twinkling stars, city silhouettes, and floating dust motes; Tuktuk gets passing streetlight beams; BBQ Stall gets ember particles and fire glow; Victory gets green success glow and 25 confetti particles.
