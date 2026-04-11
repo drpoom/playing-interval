@@ -16,7 +16,7 @@ BASE_AGENT_CMD = ["openclaw", "agent", "--agent", "main", "--message"]
 GOAL_FILE = "goal.md"
 SPRINT_DIR = "./sprints"
 TRACE_LOG = "agent_trace.log"
-PROTECTED_FILES = ["goal.md", "driver.py", "story.md", "theme.md"]
+PROTECTED_FILES = ["goal.md", "driver.py", "story.md", "theme.md", "sprints"]
 
 def log(message, color=C_RESET, bold=False):
     style = color + (C_BOLD if bold else "")
@@ -146,6 +146,12 @@ def main():
         # 3. REVIEW LOGGING
         if success:
             review = run_agent_cli("Summarize the progress in 3 bullet points.", pi_id, sprint_id, "REVIEW")
+
+            # Ensure directory exists right before writing
+            if not os.path.exists(SPRINT_DIR):
+                os.makedirs(SPRINT_DIR)
+                log(f"Re-created missing {SPRINT_DIR} folder.", C_YELLOW)
+
             with open(f"{SPRINT_DIR}/sprint_{pi_id}.{sprint_id}_review.md", "w") as f:
                 f.write(str(review))
 
