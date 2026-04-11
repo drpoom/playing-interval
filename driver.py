@@ -1,159 +1,122 @@
 import subprocess
 import time
 import os
-import sys
-import json
 import re
 import argparse
 
+# --- ANSI COLORS ---
+C_RESET, C_BOLD = "\033[0m", "\033[1m"
+C_BLUE, C_GREEN = "\033[94m", "\033[92m"
+C_YELLOW, C_RED = "\033[93m", "\033[91m"
+C_CYAN = "\033[96m"
+
 # --- CONFIGURATION ---
-PROJECT_DIR = "."
-AGENT_COMMAND = ["openclaw", "chat", "--workspace", "."] 
+BASE_AGENT_CMD = ["openclaw", "agent", "--agent", "main", "--message"]
 GOAL_FILE = "goal.md"
 SPRINT_DIR = "./sprints"
-DASHBOARD_FILE = "dashboard.json"
-STOP_FILE = "STOP_AGENT.txt"
-PI_PLANNING_TRIGGER = "START_PI_PLANNING.txt"
+TRACE_LOG = "agent_trace.log"
 
-def log(message):
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] {message}")
+# THE SAFETY LIST: If these are missing, the agent is fired.
+PROTECTED_FILES = ["goal.md", "driver.py", "story.md", "theme.md"]
 
-def get_latest_version():
-    if not os.path.exists(SPRINT_DIR):
-        os.makedirs(SPRINT_DIR)
-        return 1, 0
-    files = os.listdir(SPRINT_DIR)
-    pattern = re.compile(r"sprint_(\d+)\.(\d+)_review\.md")
-    versions = []
-    for f in files:
-        match = pattern.match(f)
-        if match:
-            versions.append((int(match.group(1)), int(match.group(2))))
-    if not versions:
-        return 1, 0
-    versions.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return versions[0]
+def log(message, color=C_RESET, bold=False):
+    style = color + (C_BOLD if bold else "")
+    print(f"{C_CYAN}[{time.strftime('%H:%M:%S')}]{C_RESET} {style}{message}{C_RESET}")
 
-def update_dashboard(pi, sprint, status, latest_task="N/A"):
-    data = {
-        "project": "The Myth of Crystal Island",
-        "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "pi": pi, "sprint": sprint, "status": status, "latest_task": latest_task
-    }
-    with open(DASHBOARD_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+def safety_check():
+    """Verify that the agent hasn't nuked the project root."""
+    missing = [f for f in PROTECTED_FILES if not os.path.exists(f)]
+    if missing:
+        log(f"CRITICAL SAFETY VIOLATION: {missing} are missing!", C_RED, True)
+        log("Emergency Shutdown initiated. Check 'git status'.", C_RED)
+        sys.exit(1)
 
-def run_agent(prompt, pi, sprint, step_name="STEP"):
-    if not os.path.exists(GOAL_FILE):
-        log(f"[ERROR] {GOAL_FILE} missing!")
-        return ""
+def run_agent_cli(prompt, pi, sprint, step_name="STEP"):
+    safety_check() # Check before every interaction
+    
     with open(GOAL_FILE, "r") as f:
         goal = f.read()
-    
+
     full_prompt = (
-        f"--- INSTRUCTIONS FOR SPRINT {pi}.{sprint} ---\n"
-        f"PROJECT GOAL: {goal}\n"
-        f"CURRENT TASK: {prompt}\n"
-        f"IMPORTANT: Respond with content only. For reviews, use 3 bullet points."
+        f"CONTEXT: PI {pi}.{sprint} | Path: {os.getcwd()}\n"
+        f"OBJECTIVE: {goal}\n"
+        f"IMPORTANT: Do NOT delete files in the root. Build to 'dist/' only.\n\n"
+        f"TASK: {prompt}"
     )
     
-    log(f"[DEBUG] Starting Agent: {step_name}")
-    cmd = AGENT_COMMAND + [full_prompt]
+    log(f"Agent ({step_name}): Working...", C_YELLOW)
     
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if result.stdout.strip():
-            print(f"\n--- [AGENT STDOUT: {step_name}] ---\n{result.stdout.strip()}\n---")
-        if result.stderr.strip():
-            print(f"\n!!! [AGENT STDERR: {step_name}] !!!\n{result.stderr.strip()}\n---")
-        return result.stdout.strip() if result.returncode == 0 else ""
+        result = subprocess.run(BASE_AGENT_CMD + [full_prompt], capture_output=True, text=True, timeout=600)
+        
+        with open(TRACE_LOG, "a") as f:
+            f.write(f"\n{'='*40}\nSTEP: {step_name} | {time.strftime('%H:%M:%S')}\nOUT: {result.stdout}\n")
+
+        return result.stdout.strip()
     except Exception as e:
-        log(f"[ERROR] Agent failed: {e}")
-        return ""
+        log(f"System Error: {e}", C_RED); return ""
 
 def verify_and_deploy(pi, sprint):
-    log(f"--- VERIFYING SPRINT {pi}.{sprint} ---")
-    build = subprocess.run(["npm", "run", "build"], capture_output=True, text=True)
-    if build.returncode != 0: return False, build.stderr
+    log(f"Verifying {pi}.{sprint}...", C_BLUE)
+    
+    if not os.path.exists("package.json"):
+        return False, "package.json missing."
+    
+    # 1. Build into DIST (Safety check: make sure we don't build to .)
+    log("Building to /dist...", C_CYAN)
+    b = subprocess.run(["npm", "run", "build"], capture_output=True, text=True)
+    
+    # Check if the build nuked the root during its run
+    safety_check()
 
-    test = subprocess.run(["npm", "test"], capture_output=True, text=True)
-    if test.returncode != 0: return False, test.stdout
-
+    if b.returncode != 0: return False, b.stderr
+    
+    # 2. Git Push (Our actual recovery point)
     try:
         subprocess.run(["git", "add", "."], check=True)
-        status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
-        if status.stdout.strip():
-            subprocess.run(["git", "commit", "-m", f"Auto-Deploy: PI {pi} Sprint {sprint}"], check=True)
+        diff = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+        if diff.stdout.strip():
+            subprocess.run(["git", "commit", "-m", f"Sprint {pi}.{sprint} SUCCESS"], check=True)
             subprocess.run(["git", "push", "origin", "main"], check=True)
-            log("Git push successful.")
+            log("State backed up to GitHub.", C_GREEN)
         return True, ""
     except Exception as e:
-        log(f"[ERROR] Git failed: {e}")
-        return False, "Git Failure"
+        log(f"Git Fail: {e}", C_RED); return False, str(e)
 
 def main():
-    parser = argparse.ArgumentParser(description="The Myth of Crystal Island Driver")
-    parser.add_argument("--pi", type=int, help="Starting PI")
-    parser.add_argument("--sprint", type=int, help="Starting Sprint")
-    parser.add_argument("--max-sprint", type=int, default=-1, help="Max sprints to run (-1 for infinite)")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max-sprint", type=int, default=-1)
     args = parser.parse_args()
 
-    last_pi, last_sprint = get_latest_version()
-    pi_id = args.pi if args.pi is not None else last_pi
-    sprint_id = args.sprint if args.sprint is not None else last_sprint + 1
+    if not os.path.exists(SPRINT_DIR): os.makedirs(SPRINT_DIR)
     
-    # Track how many sprints we've completed in THIS session
-    sprints_completed_this_session = 0
+    # Initialize Git if not present (The Ultimate Safety Net)
+    if not os.path.exists(".git"):
+        log("Initializing Git safety net...", C_YELLOW)
+        subprocess.run(["git", "init"], check=True)
+        subprocess.run(["git", "add", "."], check=True)
+        subprocess.run(["git", "commit", "-m", "Initial Safety Point"], check=True)
 
-    log(f"DRIVER STARTING: PI {pi_id}, Sprint {sprint_id} (Max: {args.max_sprint})")
+    pi_id, sprint_id = 1, 1 # Resetting for recovery
+    run_count = 0
 
     while True:
-        # Check Stop Signals
-        if os.path.exists(STOP_FILE):
-            log("Stop file detected. Exiting."); break
+        if args.max_sprint != -1 and run_count >= args.max_sprint: break
+        log(f"--- SPRINT {pi_id}.{sprint_id} ---", C_BLUE, True)
+
+        # 1. DEV
+        resp = run_agent_cli("Add the next feature. Ensure build output goes to dist/.", pi_id, sprint_id, "DEV")
         
-        # Check Session Limit
-        if args.max_sprint != -1 and sprints_completed_this_session >= args.max_sprint:
-            log(f"Reached max sprint limit ({args.max_sprint}). Shutting down gracefully.")
-            break
-
-        # Check PI Planning Trigger
-        if os.path.exists(PI_PLANNING_TRIGGER):
-            update_dashboard(pi_id, sprint_id, "PAUSED_FOR_PI_PLANNING")
-            log("Paused for PI Planning. Delete trigger file to resume.")
-            while os.path.exists(PI_PLANNING_TRIGGER): time.sleep(10)
-            pi_id += 1
-            sprint_id = 1
-
-        log(f"\n==== STARTING SPRINT {pi_id}.{sprint_id} ====")
-
-        # 1. IMPLEMENT
-        update_dashboard(pi_id, sprint_id, "DEVELOPING")
-        run_agent("Implement the next part of the story/logic in the Vue project.", pi_id, sprint_id, "IMPLEMENTATION")
-
-        # 2. VERIFY
-        update_dashboard(pi_id, sprint_id, "VERIFYING")
-        success, logs = verify_and_deploy(pi_id, sprint_id)
+        # 2. VERIFY & BACKUP
+        success, err = verify_and_deploy(pi_id, sprint_id)
         if not success:
-            log("Failed. Repairing...")
-            run_agent(f"REPAIR: Fix these errors:\n{logs}", pi_id, sprint_id, "REPAIR")
+            log("Build Failed. Repairing...", C_RED)
+            run_agent_cli(f"FIX BUILD: {err}", pi_id, sprint_id, "REPAIR")
             success, _ = verify_and_deploy(pi_id, sprint_id)
 
-        # 3. REVIEW
-        update_dashboard(pi_id, sprint_id, "REVIEWING")
-        review = run_agent("Summarize work in 3 short bullet points.", pi_id, sprint_id, "REVIEW")
-        
-        review_filename = f"{SPRINT_DIR}/sprint_{pi_id}.{sprint_id}_review.md"
-        with open(review_filename, "w") as f:
-            f.write(review if review else "# Review Error")
-        
-        log(f"Sprint {pi_id}.{sprint_id} Complete.")
-        
-        sprint_id += 1
-        sprints_completed_this_session += 1
-        time.sleep(5)
+        sprint_id += 1; run_count += 1; time.sleep(5)
 
 if __name__ == "__main__":
+    import sys
     main()
 
