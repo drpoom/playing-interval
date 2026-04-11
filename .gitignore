@@ -1,3 +1,5 @@
 node_modules
-dist
+dist/
+sprints/*.md
+agent_trace.log
 .vite.driver.py.swp
