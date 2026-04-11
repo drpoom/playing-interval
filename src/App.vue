@@ -64,11 +64,13 @@ function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
 function showDialogue(d) { dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
 function pickupItem(item) {
-  if (!inventory.includes(item)) {
-    inventory.push(item)
-    // Show toast notification
-    const icon = item.match(/\p{Emoji_Presentation}/u)?.[0] || '📦'
-    toast.value = { icon, text: 'Got: ' + item.replace(icon, '').trim() }
+  // Support both string and object format
+  const itemObj = typeof item === 'string'
+    ? { id: item, icon: item.match(/\p{Emoji_Presentation}/u)?.[0] || '📦', label: item.replace(/\p{Emoji_Presentation}/ug, '').trim() || 'Item' }
+    : item
+  if (!inventory.some(i => i.id === itemObj.id)) {
+    inventory.push(itemObj)
+    toast.value = { icon: itemObj.icon, text: 'Got: ' + itemObj.label }
     clearTimeout(toastTimer)
     toastTimer = setTimeout(() => { toast.value = null }, 2200)
     saveGame()

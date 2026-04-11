@@ -8,7 +8,7 @@
     <div class="absolute top-4 right-8 text-4xl opacity-30 animate-spin" style="animation-duration:8s">🌀</div>
 
     <!-- Content -->
-    <div class="relative z-10 flex flex-col items-center gap-5 p-6 max-w-md w-full">
+    <div class="relative z-10 flex flex-col items-center gap-4 p-6 max-w-md w-full">
 
       <!-- Scene title -->
       <h1 class="text-amber-300 text-xl font-bold text-center leading-tight">
@@ -17,42 +17,44 @@
       <p class="text-stone-400 text-sm text-center">5-Star Hotel, Pattaya, Thailand</p>
 
       <!-- Hans -->
-      <div class="tap-target text-8xl transition-transform"
+      <div class="tap-target text-8xl transition-transform relative"
            @click="talkToHans" @contextmenu.prevent="examineHans"
-           v-longpress="examineHans">🧔
+           v-longpress="examineHans">
+        🧔
+        <ActionLabel action="talk" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
       </div>
-      <p class="text-amber-200 text-sm italic text-center">{{ narration }}</p>
+      <p class="text-amber-200 text-sm italic text-center min-h-[2.5em]">{{ narration }}</p>
 
       <!-- Interactive items row -->
       <div class="flex gap-3 flex-wrap justify-center">
-        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all"
-             :class="{ 'ring-2 ring-amber-400': hovered === 'minibar' }"
+        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all relative"
              @click="examine('minibar')" @contextmenu.prevent="examine('minibar')"
-             @pointerenter="hovered='minibar'" @pointerleave="hovered=''">
+             v-longpress="() => examine('minibar')">
           🍺
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all"
-             :class="{ 'ring-2 ring-amber-400': hovered === 'bed' }"
+        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all relative"
              @click="examine('bed')" @contextmenu.prevent="examine('bed')"
-             @pointerenter="hovered='bed'" @pointerleave="hovered=''">
+             v-longpress="() => examine('bed')">
           🛏️
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all"
-             :class="{ 'ring-2 ring-amber-400': hovered === 'window' }"
+        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all relative"
              @click="lookWindow" @contextmenu.prevent="examine('window')"
-             @pointerenter="hovered='window'" @pointerleave="hovered=''">
+             v-longpress="() => examine('window')">
           🪟
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all"
-             :class="{ 'ring-2 ring-amber-400': hovered === 'letter' }"
-             @click="examine('letter')" @contextmenu.prevent="examine('letter')"
-             @pointerenter="hovered='letter'" @pointerleave="hovered=''">
+        <div class="tap-target bg-amber-800/50 rounded-xl p-3 text-3xl border border-amber-700/40 transition-all relative"
+             @click="readLetter" @contextmenu.prevent="examine('letter')"
+             v-longpress="() => examine('letter')">
           📜
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
       </div>
 
       <!-- Exit -->
-      <button class="tap-target mt-2 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white font-bold py-3 px-8 rounded-lg text-base shadow-lg"
+      <button class="tap-target mt-1 bg-green-700 hover:bg-green-600 active:bg-green-800 text-white font-bold py-3 px-8 rounded-lg text-base shadow-lg"
               @click="goOutside">
         🚪 Go Outside →
       </button>
@@ -62,12 +64,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import ActionLabel from '../components/ActionLabel.vue'
 
 defineProps({ inventory: Array, flags: Object })
 const emit = defineEmits(['transition', 'dialogue', 'pickup'])
 
 const narration = ref('"I came here for a conference... and somehow ended up in Pattaya. The hotel is... adequate."')
-const hovered = ref('')
 
 const EXAMINES = {
   minibar: '"600 baht for a small Chang beer? Even by Stuttgart standards, that is an affront to the concept of value."',
@@ -96,6 +98,10 @@ function examine(id) {
 
 function lookWindow() {
   narration.value = '"Through the window, the sweet smell of charcoal and grilled pork wafts up... Is that... a BBQ stall? The efficiency of street-side thermal food processing is... intriguing."'
+}
+
+function readLetter() {
+  emit('dialogue', { speaker: 'Hans', text: EXAMINES.letter })
 }
 
 function goOutside() {

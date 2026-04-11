@@ -10,7 +10,7 @@
     </div>
 
     <!-- Content -->
-    <div class="relative z-10 flex flex-col items-center gap-4 p-6 max-w-md w-full">
+    <div class="relative z-10 flex flex-col items-center gap-3 p-6 max-w-md w-full">
 
       <h1 class="text-amber-300 text-xl font-bold text-center leading-tight">
         Somchai's Crypto-Crackle
@@ -18,33 +18,43 @@
       <p class="text-stone-400 text-sm text-center italic">"Best BBQ & Crypto Mining in Pattaya"</p>
 
       <!-- Stall Owner -->
-      <div class="tap-target text-8xl transition-transform"
+      <div class="tap-target text-7xl transition-transform relative"
            @click="talkToOwner" @contextmenu.prevent="examineOwner"
            v-longpress="examineOwner">
         👨‍🍳
+        <ActionLabel action="talk" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
       </div>
 
-      <p class="text-amber-200 text-sm italic text-center min-h-[3em]">{{ narration }}</p>
+      <p class="text-amber-200 text-sm italic text-center min-h-[2.5em]">{{ narration }}</p>
 
       <!-- Interactive items -->
       <div class="flex gap-3 flex-wrap justify-center">
-        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 transition-all"
+        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 transition-all relative"
              :class="{ 'ring-2 ring-amber-400 opacity-40 cursor-not-allowed': hasUSB, 'hover:bg-red-800/50': !hasUSB }"
-             @click="pickupUSB" @contextmenu.prevent="examineUSB">
+             @click="pickupUSB" @contextmenu.prevent="examineUSB"
+             v-longpress="examineUSB">
           💾
+          <ActionLabel v-if="!hasUSB" action="pickup" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
+          <ActionLabel v-else action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 hover:bg-red-800/50"
-             @click="examineGrill" @contextmenu.prevent="examineGrill">
+        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 hover:bg-red-800/50 relative"
+             @click="examineGrill" @contextmenu.prevent="examineGrill"
+             v-longpress="examineGrill">
           🔥
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 hover:bg-red-800/50"
-             @click="examineSign" @contextmenu.prevent="examineSign">
+        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 hover:bg-red-800/50 relative"
+             @click="examineSign" @contextmenu.prevent="examineSign"
+             v-longpress="examineSign">
           🪧
+          <ActionLabel action="examine" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
-        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 hover:bg-red-800/50"
-             :class="{ 'ring-2 ring-green-400 animate-pulse': hasUSB && !minerInitialized }"
-             @click="examineMiner" @contextmenu.prevent="examineMiner">
+        <div class="tap-target bg-red-900/50 rounded-xl p-3 text-3xl border border-red-700/40 relative"
+             :class="{ 'ring-2 ring-green-400 animate-pulse': hasUSB && !minerInitialized, 'hover:bg-red-800/50': !hasUSB || minerInitialized }"
+             @click="examineMiner" @contextmenu.prevent="examineMiner"
+             v-longpress="examineMiner">
           ⛏️
+          <ActionLabel :action="minerInitialized ? 'examine' : 'use'" class="absolute -bottom-1 left-1/2 -translate-x-1/2" />
         </div>
       </div>
 
@@ -68,7 +78,7 @@
       </button>
 
       <!-- Navigation -->
-      <div class="flex gap-3 mt-2">
+      <div class="flex gap-3 mt-1">
         <button class="tap-target bg-stone-700 hover:bg-stone-600 text-white py-2 px-5 rounded-lg text-sm"
                 @click="goBack">
           ← Hotel
@@ -80,12 +90,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import ActionLabel from '../components/ActionLabel.vue'
 
 const props = defineProps({ inventory: Array, flags: Object })
 const emit = defineEmits(['transition', 'dialogue', 'pickup'])
 
 const narration = ref('')
-const hasUSB = computed(() => props.inventory.includes('💾 Greasy USB'))
+const hasUSB = computed(() => props.inventory.some(i => i.id === 'greasy-usb'))
 const minerInitialized = computed(() => props.flags.minersOnline)
 
 function talkToOwner() {
@@ -115,7 +126,7 @@ function examineUSB() {
 
 function pickupUSB() {
   if (!hasUSB.value) {
-    emit('pickup', '💾 Greasy USB')
+    emit('pickup', { id: 'greasy-usb', icon: '💾', label: 'Greasy USB' })
     narration.value = '"Acquired: Greasy USB Stick. It smells like Moo Yang. The label says MINER 3000 BOOT DISK." 🤲💾'
   }
 }
@@ -132,13 +143,11 @@ function examineMiner() {
   if (minerInitialized.value) {
     emit('dialogue', { speaker: 'Hans', text: '"The miner hums contentedly at 400 terahashes per second. Green lights everywhere. It is mining Moo Yang tokens at full capacity, and the exhaust heat is being used to grill pork. This is... actually brilliant thermal engineering."' })
   } else {
-    emit('dialogue', { speaker: 'Hans', text: '"A dusty mining rig with a USB port that is screaming for that greasy stick. The cooling system appears to be a bucket of iced tea. INSERT USB TO BEGIN."'
-    })
+    emit('dialogue', { speaker: 'Hans', text: '"A dusty mining rig with a USB port that is screaming for that greasy stick. The cooling system appears to be a bucket of iced tea. INSERT USB TO BEGIN."' })
   }
 }
 
 function initializeMiner() {
-  // Set flag immediately so UI updates
   emit('transition', { scene: 'bbqStall', newFlags: { minersOnline: true } })
   emit('dialogue', {
     speaker: 'System',
