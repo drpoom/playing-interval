@@ -12,6 +12,8 @@
 
     <DialogueBox v-if="dialogue" :dialogue="dialogue" @dismiss="dismissDialogue" />
 
+    <SceneIntro :show="introShow" :title="introTitle" :subtitle="introSubtitle" :location="introLocation" :background="introBg" />
+
     <!-- Toast for item pickups -->
     <Transition name="toast">
       <div v-if="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-amber-600/95 text-white font-bold px-5 py-3 rounded-xl shadow-2xl text-base flex items-center gap-2">
@@ -50,6 +52,7 @@ import BBQStallScene from './scenes/BBQStallScene.vue'
 import VictoryScene from './scenes/VictoryScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
+import SceneIntro from './components/SceneIntro.vue'
 import { sfx, isSoundEnabled, toggleSound } from './audio.js'
 import { isMusicEnabled, toggleMusic, changeScene } from './music.js'
 
@@ -64,6 +67,30 @@ const soundOn = ref(isSoundEnabled())
 const musicOn = ref(isMusicEnabled())
 let toastTimer = null
 
+const introShow = ref(false)
+const introTitle = ref('')
+const introSubtitle = ref('')
+const introLocation = ref('')
+const introBg = ref('')
+
+const SCENE_INTROS = {
+  hotel: { title: 'Chapter 1', subtitle: 'The Last Supper of Efficiency', location: '5-Star Hotel, Pattaya, Thailand', bg: 'linear-gradient(180deg, #78350f 0%, #1c1917 100%)' },
+  tuktuk: { title: 'Tuk-Tuk to Destiny', subtitle: '', location: 'Pattaya Ring Road', bg: 'linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%)' },
+  bbqStall: { title: "Somchai's Crypto-Crackle", subtitle: '"Best BBQ & Crypto Mining in Pattaya"', location: 'Street Food District', bg: 'linear-gradient(180deg, #7f1d1d 0%, #1c1917 100%)' },
+  victory: { title: 'MOO YANG PROTOCOL', subtitle: 'ACTIVATED', location: '', bg: 'linear-gradient(180deg, #14532d 0%, #1c1917 100%)' },
+}
+
+function showIntro(scene) {
+  const intro = SCENE_INTROS[scene]
+  if (!intro) return
+  introTitle.value = intro.title
+  introSubtitle.value = intro.subtitle
+  introLocation.value = intro.location
+  introBg.value = intro.bg
+  introShow.value = true
+  setTimeout(() => { introShow.value = false }, 2200)
+}
+
 const currentSceneComponent = computed(() => SCENES[currentScene.value])
 
 function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
@@ -74,6 +101,7 @@ function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
   if (clearInventory) inventory.length = 0
   currentScene.value = scene
   changeScene(scene)
+  showIntro(scene)
   saveGame()
 }
 

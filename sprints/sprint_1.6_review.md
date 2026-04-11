@@ -1,0 +1,3 @@
+- **Inventory item examination** — Tap/click any item in the inventory bar to trigger Hans's humorous description via dialogue box; custom description for the Greasy USB, generic fallback for others, with `sfx.examine()` sound.
+- **Scene revisit awareness** — Returning to Hotel or BBQ triggers different narration and examine text (e.g., "The 14 decorative pillows mock me. They know I cannot sleep. They have always known."), tracked via `leftHotel` and `visitedBBQ` flags.
+- **Interactive inventory bar** — Items now have `active:scale-95` press feedback, emit `examine` events, and support both tap and `v-longpress` for examine; inventory slot click wired to App.vue handler with sound + dialogue.
