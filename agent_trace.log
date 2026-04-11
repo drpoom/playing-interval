@@ -38,3 +38,37 @@ Build ✅ | Main pushed ✅ | gh-pages deployed ✅
 - Scene transitions with fade animation
 - CC BY-NC-ND 4.0 footer
 
+
+========================================
+STEP: DEV | 04:09:28
+OUT: Good — the current state has two working scenes but is missing the long-press directive (referenced in HotelScene as `v-longpress`), has no tuktuk transition scene, and the dialogue system doesn't support multi-line sequences. Let me add the next meaningful feature: **a tuktuk transition scene** and **proper long-press support for mobile examine**.
+Now create the tuktuk transition scene:
+Now update App.vue to include the tuktuk scene and update the HotelScene exit to go through it:
+Update HotelScene to go to tuktuk instead of directly to bbqStall:
+Remove the `v-longpress` from HotelScene since we registered it as a global directive (it's now available everywhere):
+Now build and verify:
+The `node_modules` got cleaned. Need to reinstall:
+Build succeeds. Now commit, push, and deploy:
+**PI 1.2 Sprint Complete!** 🛺✨
+
+**New features added:**
+
+1. **🛺 Tuktuk Transition Scene** — When Hans leaves the hotel, he takes a tuktuk ride to the BBQ stall. Features:
+   - Animated road-scrolling background
+   - Bouncing tuktuk emoji
+   - Progress bar (0→100%)
+   - 8 rotating Hans monologue facts about the tuktuk experience (German efficiency vs. Thai traffic)
+   - Arrival reveal: "Somchai's Crypto-Crackle: Pork at 400 Terahashes"
+   - "Enter the Stall" button to proceed to the BBQ scene
+
+2. **📱 Long-Press Directive** (`v-longpress`) — Global Vue directive registered in `main.js`:
+   - 500ms hold on mobile triggers "Examine" action
+   - Prevents default click after long-press to avoid double-firing
+   - Works on both touch and mouse events
+
+3. **🔄 Scene Flow Update** — Hotel → Tuktuk → BBQ Stall (was Hotel → BBQ directly)
+
+**Live at:** `https://www.drpoom.com/playing-interval/`
+
+Hard refresh (`Ctrl+Shift+R`) to see the latest!
+

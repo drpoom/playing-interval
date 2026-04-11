@@ -62,6 +62,9 @@ def verify_and_deploy(pi, sprint):
     if not os.path.exists("package.json"):
         return False, "package.json missing."
     
+    # 0. Ensure dependencies are installed
+    subprocess.run(["npm", "install"], capture_output=True, text=True)
+
     # 1. Build into DIST (Safety check: make sure we don't build to .)
     log("Building to /dist...", C_CYAN)
     b = subprocess.run(["npm", "run", "build"], capture_output=True, text=True)
