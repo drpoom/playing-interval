@@ -1,0 +1,3 @@
+- **Miner boot terminal puzzle** — USB initialization now triggers an animated retro terminal overlay (`MinerTerminal.vue`) with 20-line boot sequence (USB mount → ASIC cores → Moo Yang Protocol v4.2 → 400 TH/s), progress bar, blinking cursor, and success fanfare SFX, replacing the previous instant button click.
+- **Cinematic scene intros** — `SceneIntro.vue` displays full-screen title cards on scene transitions with per-scene gradient backgrounds, auto-dismissing after 2.2 seconds with smooth fade transitions.
+- **Inventory examination + revisit dialogue** — Tap inventory items for Hans's descriptions; Hotel and BBQ scenes show different narration/examine text on return visits, tracked via `leftHotel`/`visitedBBQ` flags.

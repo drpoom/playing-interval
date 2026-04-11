@@ -1,11 +1,29 @@
 <template>
   <div class="scene hotel-scene w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
 
-    <!-- Background ambience -->
-    <div class="absolute inset-0 flex items-center justify-center opacity-10 text-[140px] select-none pointer-events-none">🏨</div>
+    <!-- Night sky + city lights background -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <!-- Stars -->
+      <div v-for="i in 6" :key="'s'+i" class="absolute w-0.5 h-0.5 bg-white rounded-full star-twinkle" :style="{ top: (5 + i*8) + '%', left: (10 + i*14) + '%', animationDelay: (i*0.7) + 's' }"></div>
+      <!-- Distant building silhouettes -->
+      <div class="absolute bottom-[38%] left-[5%] w-3 h-6 bg-stone-800/40 rounded-t"></div>
+      <div class="absolute bottom-[38%] left-[15%] w-4 h-10 bg-stone-800/30 rounded-t"></div>
+      <div class="absolute bottom-[38%] left-[25%] w-3 h-8 bg-stone-800/35 rounded-t"></div>
+      <div class="absolute bottom-[38%] left-[55%] w-4 h-12 bg-stone-800/30 rounded-t"></div>
+      <div class="absolute bottom-[38%] left-[70%] w-3 h-7 bg-stone-800/40 rounded-t"></div>
+      <div class="absolute bottom-[38%] left-[85%] w-5 h-9 bg-stone-800/25 rounded-t"></div>
+      <!-- Window light beams -->
+      <div class="absolute bottom-[38%] left-[17%] w-0.5 h-1 bg-amber-300/60 rounded"></div>
+      <div class="absolute bottom-[38%] left-[57%] w-0.5 h-1 bg-amber-300/60 rounded"></div>
+    </div>
 
     <!-- Slow ceiling fan animation -->
     <div class="absolute top-4 right-8 text-4xl opacity-30 animate-spin" style="animation-duration:8s">🌀</div>
+
+    <!-- Floating dust motes in light -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div v-for="i in 4" :key="'d'+i" class="dust-mote" :style="{ left: (20+i*15)+'%', animationDelay: (i*1.5)+'s', animationDuration: (6+i*2)+'s' }"></div>
+    </div>
 
     <!-- Content -->
     <div class="relative z-10 flex flex-col items-center gap-4 p-6 max-w-md w-full">
@@ -129,6 +147,32 @@ export default { name: 'HotelScene' }
 
 <style scoped>
 .hotel-scene {
-  background: linear-gradient(180deg, #78350f 0%, #451a03 50%, #1c1917 100%);
+  background: linear-gradient(180deg, #0c1445 0%, #1a1a3e 30%, #78350f 75%, #451a03 100%);
+}
+
+.dust-mote {
+  position: absolute;
+  bottom: 20%;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 200, 0.3);
+  border-radius: 50%;
+  animation: dustFloat 8s ease-in-out infinite;
+}
+
+.star-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+@keyframes dustFloat {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  20% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { transform: translateY(-60vh) translateX(30px); opacity: 0; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
 }
 </style>

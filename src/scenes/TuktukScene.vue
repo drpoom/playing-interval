@@ -2,9 +2,10 @@
   <Transition name="scene" mode="out-in">
     <div v-if="phase === 'riding'" key="riding" class="tuktuk-scene w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
 
-    <!-- Animated road -->
+    <!-- Animated road + passing streetlights -->
     <div class="absolute inset-0 overflow-hidden">
       <div class="road-lines"></div>
+      <div v-for="i in 3" :key="'l'+i" class="streetlight" :style="{ left: (20+i*30)+'%', animationDelay: (i*1.2)+'s' }"></div>
     </div>
 
     <!-- Tuktuk -->
@@ -110,6 +111,22 @@ export default { name: 'TuktukScene' }
 <style scoped>
 .tuktuk-scene {
   background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 50%, #1c1917 100%);
+}
+
+.streetlight {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 35%;
+  background: linear-gradient(180deg, rgba(255,200,50,0.4) 0%, transparent 100%);
+  animation: lightPass 3s ease-in infinite;
+}
+
+@keyframes lightPass {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.3; }
+  100% { transform: translateY(100vh); opacity: 0; }
 }
 
 .arrived-scene {

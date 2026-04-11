@@ -1,12 +1,20 @@
 <template>
   <div class="scene bbq-scene w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
 
-    <!-- Background ambience -->
-    <div class="absolute inset-0 flex items-center justify-center opacity-10 text-[140px] select-none pointer-events-none">🍖</div>
+    <!-- Background: Night market glow -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 70%, rgba(220, 50, 20, 0.15) 0%, transparent 60%)
+"></div>
+    </div>
 
     <!-- Smoke particles -->
     <div class="smoke-container absolute inset-0 pointer-events-none overflow-hidden">
       <div v-for="i in 5" :key="i" class="smoke-particle" :style="{ animationDelay: (i * 0.8) + 's', left: (35 + i * 6) + '%' }"></div>
+    </div>
+
+    <!-- Ember particles -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div v-for="i in 6" :key="'e'+i" class="ember-particle" :style="{ left: (40 + i*4) + '%', animationDelay: (i*0.6) + 's', animationDuration: (2 + i*0.3) + 's' }"></div>
     </div>
 
     <!-- Content -->
@@ -186,7 +194,7 @@ export default { name: 'BBQStallScene' }
 
 <style scoped>
 .bbq-scene {
-  background: linear-gradient(180deg, #7f1d1d 0%, #1c1917 100%);
+  background: linear-gradient(180deg, #7f1d1d 0%, #451a03 40%, #1c1917 100%);
 }
 
 .smoke-particle {
@@ -199,8 +207,24 @@ export default { name: 'BBQStallScene' }
   animation: rise 4s ease-out infinite;
 }
 
+.ember-particle {
+  position: absolute;
+  bottom: 35%;
+  width: 3px;
+  height: 3px;
+  background: #ff6b35;
+  border-radius: 50%;
+  animation: emberRise 2.5s ease-out infinite;
+}
+
 @keyframes rise {
   0% { transform: translateY(0) scale(1); opacity: 0.4; }
   100% { transform: translateY(-200px) scale(4); opacity: 0; }
+}
+
+@keyframes emberRise {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { opacity: 0.4; }
+  100% { transform: translateY(-80px) translateX(10px); opacity: 0; }
 }
 </style>

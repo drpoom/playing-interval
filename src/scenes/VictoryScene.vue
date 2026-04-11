@@ -3,10 +3,12 @@
 
     <!-- Celebration particles -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div v-for="i in 20" :key="i" class="confetti"
+      <!-- Green glow -->
+      <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 30%, rgba(16, 185, 129, 0.15) 0%, transparent 60%)"></div>
+      <div v-for="i in 25" :key="i" class="confetti"
         :style="{
           left: (Math.random() * 100) + '%',
-          animationDelay: (i * 0.15) + 's',
+          animationDelay: (i * 0.12) + 's',
           animationDuration: (2 + Math.random() * 2) + 's',
           backgroundColor: confettiColors[i % confettiColors.length]
         }">
@@ -41,15 +43,15 @@
 
       <!-- Stats -->
       <div class="grid grid-cols-3 gap-3 w-full text-center">
-        <div class="bg-stone-800/80 rounded-lg p-2">
+        <div class="bg-stone-800/80 rounded-lg p-2 border border-amber-500/20">
           <p class="text-amber-400 text-lg font-bold">3</p>
           <p class="text-stone-500 text-xs">Scenes</p>
         </div>
-        <div class="bg-stone-800/80 rounded-lg p-2">
+        <div class="bg-stone-800/80 rounded-lg p-2 border border-amber-500/20">
           <p class="text-amber-400 text-lg font-bold">1</p>
           <p class="text-stone-500 text-xs">Puzzle Solved</p>
         </div>
-        <div class="bg-stone-800/80 rounded-lg p-2">
+        <div class="bg-stone-800/80 rounded-lg p-2 border border-amber-500/20">
           <p class="text-amber-400 text-lg font-bold">1</p>
           <p class="text-stone-500 text-xs">USB Stick</p>
         </div>
