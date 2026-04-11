@@ -58,11 +58,13 @@
         </div>
       </div>
 
+      <MinerTerminal :show="showTerminal" @complete="onTerminalComplete" @close="onTerminalComplete" />
+
       <!-- USB insertion action -->
       <button v-if="hasUSB && !minerInitialized"
               class="tap-target bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-bold py-3 px-6 rounded-lg text-base animate-pulse shadow-lg"
               @click="initializeMiner">
-        💾 Insert Greasy USB Stick → ⛏️
+        💾 Initialize Miners
       </button>
 
       <div v-if="minerInitialized"
@@ -91,6 +93,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ActionLabel from '../components/ActionLabel.vue'
+import MinerTerminal from '../components/MinerTerminal.vue'
 
 const props = defineProps({ inventory: Array, flags: Object })
 const emit = defineEmits(['transition', 'dialogue', 'pickup'])
@@ -157,12 +160,15 @@ function examineMiner() {
   }
 }
 
+const showTerminal = ref(false)
+
 function initializeMiner() {
+  showTerminal.value = true
+}
+
+function onTerminalComplete() {
+  showTerminal.value = false
   emit('transition', { scene: 'bbqStall', newFlags: { minersOnline: true } })
-  emit('dialogue', {
-    speaker: 'System',
-    text: '"The USB slides in with a satisfying SCHLUCK. The miner whirs to life! 🎉 MOO YANG PROTOCOL ACTIVATED! The miners are ONLINE! Moo Yang tokens are being mined at 400 TH/s!"'
-  })
 }
 
 function proceedToVictory() {
