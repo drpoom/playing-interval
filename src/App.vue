@@ -20,11 +20,15 @@
       </div>
     </Transition>
 
-    <!-- Sound toggle + Examine hint -->
-    <div v-if="currentScene !== 'title'" class="fixed top-2 right-2 z-30 flex items-center gap-2">
+    <!-- Sound + Music toggles + Examine hint -->
+    <div v-if="currentScene !== 'title'" class="fixed top-2 right-2 z-30 flex items-center gap-1.5">
       <button class="tap-target text-lg bg-stone-900/70 rounded-full w-8 h-8 flex items-center justify-center"
               @click="toggleSfx">
         {{ soundOn ? '🔊' : '🔇' }}
+      </button>
+      <button class="tap-target text-lg bg-stone-900/70 rounded-full w-8 h-8 flex items-center justify-center"
+              @click="toggleBgm">
+        {{ musicOn ? '🎵' : '🔕' }}
       </button>
       <span v-if="!dialogue" class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1 pointer-events-none">Long press = Examine</span>
     </div>
@@ -47,6 +51,7 @@ import VictoryScene from './scenes/VictoryScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
 import { sfx, isSoundEnabled, toggleSound } from './audio.js'
+import { isMusicEnabled, toggleMusic, changeScene } from './music.js'
 
 const SCENES = { title: TitleScene, hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene, victory: VictoryScene }
 
@@ -56,6 +61,7 @@ const flags = reactive(JSON.parse(localStorage.getItem('mooyang_flags') || '{}')
 const dialogue = ref(null)
 const toast = ref(null)
 const soundOn = ref(isSoundEnabled())
+const musicOn = ref(isMusicEnabled())
 let toastTimer = null
 
 const currentSceneComponent = computed(() => SCENES[currentScene.value])
@@ -65,12 +71,14 @@ function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
   Object.assign(flags, newFlags)
   if (clearInventory) inventory.length = 0
   currentScene.value = scene
+  changeScene(scene)
   saveGame()
 }
 
 function showDialogue(d) { sfx.dialogue(); dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
 function toggleSfx() { soundOn.value = toggleSound(); sfx.tap() }
+function toggleBgm() { musicOn.value = toggleMusic() }
 function pickupItem(item) {
   // Support both string and object format
   const itemObj = typeof item === 'string'

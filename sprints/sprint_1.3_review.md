@@ -1,0 +1,3 @@
+- **Procedural SFX system added** — Web Audio API generates all game sounds (tap, pickup, dialogue, transition, success, examine) with no audio files needed; mute toggle (🔊/🔇) persisted in localStorage.
+- **Dialogue speaker icons** — Dialogue box shows emoji portraits (🧔 Hans, 👨‍🍳 Somchai, ⚙️ System) alongside speaker names for classic adventure game feel.
+- **UX polish round** — "Continue" loads saved scene correctly, tuktuk ride has skip button, contextual action labels (Talk/Pick Up/Look/Use) on all interactive items, structured inventory with `{ id, icon, label }` format.
