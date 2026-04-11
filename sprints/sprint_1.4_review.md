@@ -1,0 +1,3 @@
+- **Procedural ambient music** — Each scene has its own generative soundtrack (mysterious pentatonic on title, warm lobby vibes in hotel, anxious triangle waves on tuktuk, etc.) using Web Audio API with ADSR envelopes; no audio files needed.
+- **Music toggle (🎵)** — Added alongside existing SFX toggle (🔊); both preferences persist in localStorage; music auto-transitions between scenes with a brief fade gap.
+- **Full audio system complete** — `audio.js` (SFX: tap, pickup, dialogue, transition, success, examine, error) + `music.js` (ambient per-scene loops) work together; 98KB total JS bundle with zero external dependencies.
