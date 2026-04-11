@@ -22,23 +22,26 @@
 
 <script setup>
 import { reactive, computed, ref } from 'vue'
+import TitleScene from './scenes/TitleScene.vue'
 import HotelScene from './scenes/HotelScene.vue'
 import TuktukScene from './scenes/TuktukScene.vue'
 import BBQStallScene from './scenes/BBQStallScene.vue'
+import VictoryScene from './scenes/VictoryScene.vue'
 import DialogueBox from './components/DialogueBox.vue'
 import InventoryBar from './components/InventoryBar.vue'
 
-const SCENES = { hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene }
+const SCENES = { title: TitleScene, hotel: HotelScene, tuktuk: TuktukScene, bbqStall: BBQStallScene, victory: VictoryScene }
 
-const currentScene = ref('hotel')
+const currentScene = ref('title')
 const inventory = reactive([])
 const flags = reactive({})
 const dialogue = ref(null)
 
 const currentSceneComponent = computed(() => SCENES[currentScene.value])
 
-function handleTransition({ scene, newFlags = {} }) {
+function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
   Object.assign(flags, newFlags)
+  if (clearInventory) inventory.length = 0
   currentScene.value = scene
 }
 

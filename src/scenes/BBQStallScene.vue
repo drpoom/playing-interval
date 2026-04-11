@@ -134,8 +134,10 @@ function initializeMiner() {
     speaker: 'System',
     text: '"The USB slides in with a satisfying SCHLUCK. The miner whirs to life! 🎉 MOO YANG PROTOCOL ACTIVATED! The miners are ONLINE! Moo Yang tokens are being mined at 400 TH/s!"'
   })
-  // Set the flag via transition
-  emit('transition', { scene: 'bbqStall', newFlags: { minersOnline: true } })
+  // Transition to victory scene after brief delay
+  setTimeout(() => {
+    emit('transition', { scene: 'victory', newFlags: { minersOnline: true } })
+  }, 1500)
 }
 
 function goBack() {
