@@ -63,13 +63,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ActionLabel from '../components/ActionLabel.vue'
 
-defineProps({ inventory: Array, flags: Object })
+const props = defineProps({ inventory: Array, flags: Object })
 const emit = defineEmits(['transition', 'dialogue', 'pickup'])
 
-const narration = ref('"I came here for a conference... and somehow ended up in Pattaya. The hotel is... adequate."')
+const hasLeftBefore = computed(() => props.flags.leftHotel)
+const narration = ref(hasLeftBefore.value ? '"Back at the hotel. The minibar still overcharges, the bed still has 14 useless pillows, and the BBQ smell still haunts me."' : '"I came here for a conference... and somehow ended up in Pattaya. The hotel is... adequate."')
 
 const EXAMINES = {
   minibar: '"600 baht for a small Chang beer? Even by Stuttgart standards, that is an affront to the concept of value."',
@@ -78,22 +79,35 @@ const EXAMINES = {
   letter: '"A letter from Uncle Somchai. It mentions a \'High-Performance Thermal Energy Enterprise\' with \'integrated hardware\' and \'organic supply chains.\' This sounds like a data-center-backed green-energy plant. Finally — something worthy of my expertise."',
 }
 
+const REVISIT_EXAMINES = {
+  minibar: '"Still 600 baht. The price has not improved. Neither has the beer."',
+  bed: '"The 14 decorative pillows mock me. They know I cannot sleep. They have always known."',
+  window: '"The BBQ smell persists. It is eternal. Like taxes, but delicious."',
+  letter: '"Uncle Somchai\'s letter. I have read it so many times the paper is getting greasy. Wait — that might be from the USB stick."',
+}
+
 function talkToHans() {
-  emit('dialogue', {
-    speaker: 'Hans Müller',
-    text: '"According to Uncle Somchai\'s letter, I am to inherit a high-performance thermal energy enterprise. He mentions integrated hardware and organic supply chains. It sounds like a data-center-backed green-energy plant. My German heritage demands I bring order to this tropical chaos."'
-  })
+  if (hasLeftBefore.value) {
+    emit('dialogue', { speaker: 'Hans Müller', text: '"I am back. The hotel has not gotten cheaper, the pillows have not gotten useful, and I still smell BBQ. At least I am making progress on Uncle Somchai\'s mystery."' })
+  } else {
+    emit('dialogue', { speaker: 'Hans Müller', text: '"According to Uncle Somchai\'s letter, I am to inherit a high-performance thermal energy enterprise. He mentions integrated hardware and organic supply chains. It sounds like a data-center-backed green-energy plant. My German heritage demands I bring order to this tropical chaos."' })
+  }
 }
 
 function examineHans() {
-  emit('dialogue', {
-    speaker: 'Hans (Examined)',
-    text: '"A distinguished German engineer from Stuttgart. His Hawaiian shirt suggests he has already surrendered to the local climate, if not the local cuisine. He smells faintly of SPF 50 and Sparkling Water (carbonated to exactly 3.5 bar)."'
-  })
+  if (hasLeftBefore.value) {
+    emit('dialogue', { speaker: 'Hans (Examined)', text: '"The Hawaiian shirt is now thoroughly wrinkled from the tuktuk ride. His resolve, however, remains perfectly pressed. He smells of SPF 50, street food, and determination."' })
+  } else {
+    emit('dialogue', { speaker: 'Hans (Examined)', text: '"A distinguished German engineer from Stuttgart. His Hawaiian shirt suggests he has already surrendered to the local climate, if not the local cuisine. He smells faintly of SPF 50 and Sparkling Water (carbonated to exactly 3.5 bar)."' })
+  }
 }
 
 function examine(id) {
-  narration.value = EXAMINES[id] || '"Nothing of note. Move along."'
+  if (hasLeftBefore.value && REVISIT_EXAMINES[id]) {
+    narration.value = REVISIT_EXAMINES[id]
+  } else {
+    narration.value = EXAMINES[id] || '"Nothing of note. Move along."'
+  }
 }
 
 function lookWindow() {

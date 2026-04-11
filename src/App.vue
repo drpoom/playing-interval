@@ -33,7 +33,7 @@
       <span v-if="!dialogue" class="text-stone-600 text-[10px] bg-stone-900/60 rounded px-2 py-1 pointer-events-none">Long press = Examine</span>
     </div>
 
-    <InventoryBar :items="inventory" />
+    <InventoryBar :items="inventory" @examine="examineItem" />
 
     <footer class="footer-license fixed bottom-0 left-0 right-0 text-center p-1 pointer-events-none">
       Licensed under CC BY-NC-ND 4.0
@@ -68,7 +68,9 @@ const currentSceneComponent = computed(() => SCENES[currentScene.value])
 
 function handleTransition({ scene, newFlags = {}, clearInventory = false }) {
   sfx.transition()
-  Object.assign(flags, newFlags)
+  const extraFlags = {}
+  if (scene === 'bbqStall') extraFlags.visitedBBQ = true
+  Object.assign(flags, newFlags, extraFlags)
   if (clearInventory) inventory.length = 0
   currentScene.value = scene
   changeScene(scene)
@@ -79,6 +81,19 @@ function showDialogue(d) { sfx.dialogue(); dialogue.value = d }
 function dismissDialogue() { dialogue.value = null }
 function toggleSfx() { soundOn.value = toggleSound(); sfx.tap() }
 function toggleBgm() { musicOn.value = toggleMusic() }
+
+const ITEM_EXAMINES = {
+  'greasy-usb': { speaker: 'Hans', text: '"A USB stick covered in pork fat. The label reads: MINER 3000 BOOT DISK. The grease-to-data ratio is... concerning."' },
+}
+function examineItem(item) {
+  sfx.examine()
+  const desc = ITEM_EXAMINES[item.id]
+  if (desc) {
+    showDialogue(desc)
+  } else {
+    showDialogue({ speaker: 'Hans', text: `"${item.icon} ${item.label}. I should probably find a use for this."` })
+  }
+}
 function pickupItem(item) {
   // Support both string and object format
   const itemObj = typeof item === 'string'

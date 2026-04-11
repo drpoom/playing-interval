@@ -95,7 +95,17 @@ import ActionLabel from '../components/ActionLabel.vue'
 const props = defineProps({ inventory: Array, flags: Object })
 const emit = defineEmits(['transition', 'dialogue', 'pickup'])
 
+const hasVisitedBefore = computed(() => props.flags.visitedBBQ)
 const narration = ref('')
+
+function onEnter() {
+  if (hasVisitedBefore.value) {
+    narration.value = '"Back at Somchai\'s stall. The smoke, the crypto, the pork fat — some things never change."'
+  } else {
+    narration.value = ''
+  }
+}
+onEnter()
 const hasUSB = computed(() => props.inventory.some(i => i.id === 'greasy-usb'))
 const minerInitialized = computed(() => props.flags.minersOnline)
 
