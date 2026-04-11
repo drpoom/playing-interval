@@ -65,7 +65,8 @@ function startGame() {
 }
 
 function continueGame() {
-  emit('transition', { scene: 'hotel' })
+  const savedScene = localStorage.getItem('mooyang_scene') || 'hotel'
+  emit('transition', { scene: savedScene })
 }
 
 function showAbout() {

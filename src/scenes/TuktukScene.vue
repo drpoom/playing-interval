@@ -24,6 +24,11 @@
       </div>
 
       <p class="text-stone-500 text-xs">{{ Math.floor(progress) }}% to destination</p>
+
+      <button class="tap-target bg-stone-700 hover:bg-stone-600 active:bg-stone-800 text-stone-300 py-2 px-5 rounded-lg text-xs transition-all"
+              @click="skipToArrived">
+        ⏩ Skip ride
+      </button>
     </div>
   </div>
 
@@ -89,6 +94,12 @@ onUnmounted(() => {
 
 function enterStall() {
   emit('transition', { scene: 'bbqStall', newFlags: { tuktukRide: true } })
+}
+
+function skipToArrived() {
+  if (intervalId) clearInterval(intervalId)
+  progress.value = 100
+  phase.value = 'arrived'
 }
 </script>
 
